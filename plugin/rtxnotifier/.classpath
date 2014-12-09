@@ -21,6 +21,25 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+  <classpathentry kind="var" path="M2_REPO/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20.jar" sourcepath="M2_REPO/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/maruojie/.m2/repository/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/com/atlassian/templaterenderer/atlassian-template-renderer-api/1.1.1/atlassian-template-renderer-api-1.1.1.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/maruojie/.m2/repository/com/atlassian/templaterenderer/atlassian-template-renderer-api/1.1.1/atlassian-template-renderer-api-1.1.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/2.5.6.SEC02/spring-context-2.5.6.SEC02.jar" sourcepath="M2_REPO/org/springframework/spring-context/2.5.6.SEC02/spring-context-2.5.6.SEC02-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/maruojie/.m2/repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/2.5.6.SEC02/spring-beans-2.5.6.SEC02.jar" sourcepath="M2_REPO/org/springframework/spring-beans/2.5.6.SEC02/spring-beans-2.5.6.SEC02-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/2.5.6.SEC02/spring-core-2.5.6.SEC02.jar" sourcepath="M2_REPO/org/springframework/spring-core/2.5.6.SEC02/spring-core-2.5.6.SEC02-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/atlassian/jira/jira-api/6.3.11/jira-api-6.3.11.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/atlassian/annotations/atlassian-annotations/0.14/atlassian-annotations-0.14.jar" sourcepath="M2_REPO/com/atlassian/annotations/atlassian-annotations/0.14/atlassian-annotations-0.14-sources.jar">
     <attributes>
@@ -282,11 +301,6 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/jfree/jcommon/1.0.8/jcommon-1.0.8.jar" sourcepath="M2_REPO/jfree/jcommon/1.0.8/jcommon-1.0.8-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20.jar" sourcepath="M2_REPO/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/Users/maruojie/.m2/repository/com/atlassian/sal/sal-api/2.10.20/sal-api-2.10.20-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/atlassian/gadgets/atlassian-gadgets-api/3.5.6/atlassian-gadgets-api-3.5.6.jar">
     <attributes>
       <attribute value="jar:file:/Users/maruojie/.m2/repository/com/atlassian/gadgets/atlassian-gadgets-api/3.5.6/atlassian-gadgets-api-3.5.6-javadoc.jar!/" name="javadoc_location"/>
