@@ -1,4 +1,11 @@
-JiraRTX
+这是什么
 =======
 
-Jira plugin for sending notification to Tencent RTX
+这个项目包含了一个jira插件和一个服务端, jira插件用来监听jira的事件, 并把这些事件转换为消息发送到服务端, 服务端再将消息转发到RTX Server, 实现通知功能. jira插件和服务端通过socket连接, 所以可以部署在不同的服务器上.
+
+以上只是初步设想, 平常没开发过jira插件, 刚开始弄.
+
+为什么
+===
+
+因为使用jira管理项目的关系, 同时使用RTX沟通, 希望能有一个jira和RTX配合的功能, 问度娘和狗狗, 看到其他人也有这样的需求, 但是并未搜索到现成的轮子, 只好自己写一个了.
