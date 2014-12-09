@@ -10,6 +10,7 @@ Debug/
 Release/
 ipch/
 logs/
+target/
 doxygen/debug.txt
 **/.idea/workspace.xml
 **/.idea/tasks.xml
