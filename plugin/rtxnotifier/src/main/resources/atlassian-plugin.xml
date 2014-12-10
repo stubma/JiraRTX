@@ -19,23 +19,23 @@
         <context>rtxnotifier</context>
     </web-resource>
     
-    <!-- listener -->
+    <!-- component import -->
     <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
-	<component key="eventListener" class="luma.jira.plugin.rtxnotifier.IssueCreatedResolvedListener">
+   	<component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
+	<component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" />
+	<component-import key="renderer" interface="com.atlassian.templaterenderer.velocity.one.six.VelocityTemplateRenderer" />
+	<component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+	
+    <!-- listener -->
+	<component key="eventListener" class="luma.jira.plugin.rtxnotifier.IssueEventListener">
 		<description>Class that processes the incoming JIRA issue events.</description>
 	</component>
 	
 	<!-- admin -->
-	<component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
-	<component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" />
-	<component-import key="renderer" interface="com.atlassian.templaterenderer.velocity.one.six.VelocityTemplateRenderer" />
-	<component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
 	<servlet key="admin-servlet" class="luma.jira.plugin.rtxnotifier.AdminServlet">
 		<url-pattern>/rtx/admin</url-pattern>
 	</servlet>
-
-    <!-- import from the product container -->
-    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
 
     <!-- menu in navigation bar -->
    	<web-item key="rtx_menu" name="RTX" section="system.top.navigation.bar" weight="46">
