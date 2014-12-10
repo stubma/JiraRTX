@@ -1,21 +1,24 @@
 <html>
-  <head>
-    <title>RTX Notifier Admin</title>
-    <meta name="decorator" content="atl.admin">
-  </head>
-  <body>
-    <form id="admin">
-      <div>
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name">
-      </div>
-      <div>
-        <label for="time">Time</label>
-        <input type="text" id="time" name="time">
-      </div>
-      <div>
-        <input type="submit" value="Save">
-      </div>
-    </form>
-  </body>
+	<head>
+		<title>RTX Notifier Admin</title>
+		<meta name="decorator" content="atl.admin" />
+	</head>
+	<body>
+		#if($saved)
+		<h3>Saved!</h3>
+		#end
+		<form id="admin" class="aui" action="" method="POST">
+			<div class="field-group">
+				<label for="addr">Agent Address:</label>
+				<input type="text" id="addr" name="addr" value="$!addr" />
+			</div>
+			<div class="field-group">
+				<label for="port">Agent Port:</label>
+				<input type="text" id="port" name="port" value="$!port" />
+			</div>
+			<div class="field-group">
+				<input type="submit" value="Save" />
+			</div>
+		</form>
+	</body>
 </html>

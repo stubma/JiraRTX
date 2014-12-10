@@ -13,11 +13,9 @@
     <!-- add our web resources -->
     <web-resource key="rtxnotifier-resources" name="rtxnotifier Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        
         <resource type="download" name="rtxnotifier.css" location="/css/rtxnotifier.css"/>
         <resource type="download" name="rtxnotifier.js" location="/js/rtxnotifier.js"/>
         <resource type="download" name="images/" location="/images"/>
-
         <context>rtxnotifier</context>
     </web-resource>
     
@@ -31,6 +29,7 @@
 	<component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
 	<component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" />
 	<component-import key="renderer" interface="com.atlassian.templaterenderer.velocity.one.six.VelocityTemplateRenderer" />
+	<component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
 	<servlet key="admin-servlet" class="luma.jira.plugin.rtxnotifier.AdminServlet">
 		<url-pattern>/rtx/admin</url-pattern>
 	</servlet>
