@@ -32,21 +32,21 @@
 	<component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" />
 	<component-import key="renderer" interface="com.atlassian.templaterenderer.velocity.one.six.VelocityTemplateRenderer" />
 	<servlet key="admin-servlet" class="luma.jira.plugin.rtxnotifier.AdminServlet">
-		<url-pattern>/rtxnotifier/admin</url-pattern>
+		<url-pattern>/rtx/admin</url-pattern>
 	</servlet>
 
     <!-- import from the product container -->
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
 
     <!-- menu in navigation bar -->
-   	<web-item key="nav_menu" name="Nav Menu" section="system.top.navigation.bar" weight="46">
+   	<web-item key="rtx_menu" name="RTX" section="system.top.navigation.bar" weight="46">
 		<description>Link to rtxnotifier-admin page.</description>
-		<label key="rtxnotifier.nav.menu" />
-		<link linkId="rtxnotifier_nav"></link>
+		<label key="rtx.menu"/>
+		<link linkId="rtx_menu"></link>
 	</web-item>
-    <web-section key="rtxnotifier_dropdown" name="RTX Notifier DropDown" location="rtxnotifier_nav" weight="10"/>
-	<web-item key="config_rtx_server" name="Config RTX Server" section="rtxnotifier_nav/rtxnotifier_dropdown" weight="10">
-		<label key="rtxnotifier.nav.config.rtx.server"></label>
-		<link linkId="rtxnotifier_admin">/plugins/servlet/rtxnotifier/admin</link>
+    <web-section key="rtx_link_main" name="RTX DropDown" location="rtx_menu" weight="10"/>
+	<web-item key="config_rtx_agent" name="Config RTX Agent" section="rtx_menu/rtx_link_main" weight="10">
+		<label key="rtx.menuitem.config.rtx.agent"></label>
+		<link linkId="rtx_link_admin">/plugins/servlet/rtx/admin</link>
 	</web-item>
 </atlassian-plugin>
