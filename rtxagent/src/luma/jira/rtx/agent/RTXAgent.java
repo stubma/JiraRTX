@@ -10,8 +10,8 @@ public class RTXAgent {
 	public static void main(String[] args) {
 		// Create a server socket to accept client connection request
 		ServerSocket servSocket = null;
-		int recvMsgSize = 0;
-		byte[] receivBuf = new byte[65535];
+		int read = 0;
+		byte[] buf = new byte[65535];
 
 		try {
 			servSocket = new ServerSocket(20141);
@@ -23,9 +23,27 @@ public class RTXAgent {
 				InputStream in = clientSocket.getInputStream();
 
 				// receive until client close connection, indicate by -l return
-				while ((recvMsgSize = in.read(receivBuf)) != -1) {
-					String receivedData = new String(receivBuf, 0, recvMsgSize, "utf-8");
+				for(int i = 0; i != -1; i = in.read(buf, read, buf.length - read)) {
+					// add read
+					read += i;
+					if(read < 4)
+						continue;
+					
+					// read length
+					int length = ((buf[0] << 24) & 0xff000000) | ((buf[1] << 16) & 0xff0000) | ((buf[2] << 8) & 0xff00) | (buf[3] & 0xff);
+					
+					// check data
+					if(length > read - 4)
+						continue;
+					
+					// get body
+					String receivedData = new String(buf, 4, length, "utf-8");
 					System.out.println(receivedData);
+					
+					// compact
+					for(int j = 4 + length; j < read; j++) {
+						buf[j - 4 - length] = buf[j];
+					}
 				}
 				clientSocket.close();
 			}

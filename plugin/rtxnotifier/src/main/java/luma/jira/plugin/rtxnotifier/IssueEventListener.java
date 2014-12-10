@@ -191,6 +191,14 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 								JSONObject json = m_sendQueue.poll();
 								String str = json.toString();
 								byte[] data = str.getBytes("utf-8");
+								
+								// write length as 4 bytes
+								out.write((data.length >> 24) & 0xff);
+								out.write((data.length >> 16) & 0xff);
+								out.write((data.length >> 8) & 0xff);
+								out.write(data.length & 0xff);
+								
+								// write data
 								out.write(data);
 								out.flush();
 							}
