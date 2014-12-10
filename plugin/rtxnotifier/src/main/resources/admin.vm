@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>RTX Notifier Admin</title>
+    <meta name="decorator" content="atl.admin">
   </head>
   <body>
     <form id="admin">

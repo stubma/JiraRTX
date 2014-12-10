@@ -44,7 +44,7 @@
 		<label key="rtx.menu"/>
 		<link linkId="rtx_menu"></link>
 	</web-item>
-    <web-section key="rtx_link_main" name="RTX DropDown" location="rtx_menu" weight="10"/>
+    <web-section key="rtx_link_main" name="RTX" location="rtx_menu" weight="10"/>
 	<web-item key="config_rtx_agent" name="Config RTX Agent" section="rtx_menu/rtx_link_main" weight="10">
 		<label key="rtx.menuitem.config.rtx.agent"></label>
 		<link linkId="rtx_link_admin">/plugins/servlet/rtx/admin</link>
