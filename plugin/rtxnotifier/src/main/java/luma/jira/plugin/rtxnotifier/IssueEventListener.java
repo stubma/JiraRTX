@@ -48,6 +48,10 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		m_eventPublisher = eventPublisher;
 		m_pluginSettingsFactory = pluginSettingsFactory;
 	}
+	
+	private boolean isEmpty(String s) {
+		return s == null || "".equals(s);
+	}
 
 	@EventListener
 	public void onIssueEvent(IssueEvent issueEvent) {
@@ -77,7 +81,19 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENTED_ID)) {
 			log.info("Issue Event: ISSUE_COMMENTED_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_CREATED_ID)) {
-			log.info("Issue Event: ISSUE_CREATED_ID");
+			sb.append(String.format("%s创建了问题%s", m_userManager.getRemoteUser().getUsername(), issue.getKey()));
+			if(issue.getAssignee() == null) {
+				sb.append(", 尚未指定负责人");
+			} else {
+				sb.append(", 初始分配给").append(issue.getAssignee().getName());
+				
+				// initial assigned will get notification
+				receivers.add(issue.getAssignee().getName());
+			}
+			if(!isEmpty(issue.getSummary())) {
+				sb.append(", 问题简介: ").append(issue.getSummary());
+			}
+			log.info("Issue Event: ISSUE_CREATED_ID, msg: {}", sb.toString());
 		} else if (eventTypeId.equals(EventType.ISSUE_DELETED_ID)) {
 			log.info("Issue Event: ISSUE_DELETED_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_GENERICEVENT_ID)) {
@@ -103,7 +119,8 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		}
 		
 		// set reporter as receiver
-		receivers.add(issue.getReporter().getName());
+		if(issue.getReporter() != null)
+			receivers.add(issue.getReporter().getName());
 		
 		// build a json object
 		JSONObject json = new JSONObject();

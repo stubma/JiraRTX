@@ -44,6 +44,7 @@ public class RTXAgent {
 					for(int j = 4 + length; j < read; j++) {
 						buf[j - 4 - length] = buf[j];
 					}
+					read -= 4 + length;
 				}
 				clientSocket.close();
 			}
