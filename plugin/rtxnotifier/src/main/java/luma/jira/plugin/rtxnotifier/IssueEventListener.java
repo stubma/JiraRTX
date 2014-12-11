@@ -5,8 +5,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import com.atlassian.event.api.EventPublisher;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -42,6 +45,29 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 	
 	// connection thread
 	private Thread m_connThread;
+	
+	// string mapping
+	private static Map<Long, String> s_eventTypeStrings;
+	static {
+		s_eventTypeStrings = new HashMap<Long, String>();
+		s_eventTypeStrings.put(EventType.ISSUE_ASSIGNED_ID, "ISSUE_ASSIGNED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_CLOSED_ID, "ISSUE_CLOSED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_COMMENT_DELETED_ID, "ISSUE_COMMENT_DELETED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_COMMENT_EDITED_ID, "ISSUE_COMMENT_EDITED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_COMMENTED_ID, "ISSUE_COMMENTED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_CREATED_ID, "ISSUE_CREATED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_DELETED_ID, "ISSUE_DELETED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_GENERICEVENT_ID, "ISSUE_GENERICEVENT_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_MOVED_ID, "ISSUE_MOVED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_REOPENED_ID, "ISSUE_REOPENED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_RESOLVED_ID, "ISSUE_RESOLVED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_UPDATED_ID, "ISSUE_UPDATED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_WORKLOG_DELETED_ID, "ISSUE_WORKLOG_DELETED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_WORKLOG_UPDATED_ID, "ISSUE_WORKLOG_UPDATED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_WORKLOGGED_ID, "ISSUE_WORKLOGGED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_WORKSTARTED_ID, "ISSUE_WORKSTARTED_ID");
+		s_eventTypeStrings.put(EventType.ISSUE_WORKSTOPPED_ID, "ISSUE_WORKSTOPPED_ID");
+	}
 
 	public IssueEventListener(UserManager userManager, EventPublisher eventPublisher, PluginSettingsFactory pluginSettingsFactory) {
 		m_userManager = userManager;
@@ -49,8 +75,45 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		m_pluginSettingsFactory = pluginSettingsFactory;
 	}
 	
-	private boolean isEmpty(String s) {
-		return s == null || "".equals(s);
+	private String getResolutionString(String rid) {
+		if("1".equals(rid)) {
+			return "已修正";
+		} else if("2".equals(rid)) {
+			return "不需要修正";
+		} else if("3".equals(rid)) {
+			return "和其它问题重复";
+		} else if("4".equals(rid)) {
+			return "问题描述不完整, 无法解决";
+		} else if("5".equals(rid)) {
+			return "无法重现";
+		} else {
+			return "";
+		}
+	}
+	
+	private String getTimeString(IssueEvent e) {
+		Worklog wl = e.getWorklog();
+		if(wl == null)
+			return "无";
+		if(wl.getTimeSpent() == null)
+			return "无";
+		
+		int seconds = wl.getTimeSpent().intValue();
+		int minutes = (seconds >= 60) ? (seconds / 60) : 0;
+		int hours = (minutes >= 60) ? (minutes / 60) : 0;
+		int days = (hours >= 8) ? (hours / 8) : 0;
+		int weeks = (days >= 5) ? (days / 5) : 0;
+		if(weeks > 0) {
+			return String.format("%d星期", weeks);
+		} else if(days > 0) {
+			return String.format("%d天", days);
+		} else if(hours > 0) {
+			return String.format("%d小时", hours);
+		} else if(minutes > 0) {
+			return String.format("%d分钟", minutes);
+		} else {
+			return String.format("%d秒", seconds);
+		}
 	}
 
 	@EventListener
@@ -65,23 +128,26 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		Issue issue = issueEvent.getIssue();
 		StringBuilder sb = new StringBuilder();
 		List<String> receivers = new ArrayList<String>();
+		String user = m_userManager.getRemoteUser().getUsername();
 
 		// build message
 		if (eventTypeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
-			sb.append(String.format("%s已将问题%s分配给%s", m_userManager.getRemoteUser().getUsername(), issue.getKey(), issue.getAssignee().getName()));
+			sb.append(String.format("%s已将问题%s(%s)分配给%s", user, issue.getKey(), issue.getSummary(), issue.getAssignee().getName()));
 			if (issueEvent.getComment() != null)
-				sb.append(", 附加注释: ").append(issueEvent.getComment().getBody());
-			log.info("Issue Event: ISSUE_ASSIGNED_ID, msg: {}", sb.toString());
+				sb.append(", 注释: ").append(issueEvent.getComment().getBody());
 		} else if (eventTypeId.equals(EventType.ISSUE_CLOSED_ID)) {
-			log.info("Issue Event: ISSUE_CLOSED_ID");
+			sb.append(String.format("%s关闭了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
-			log.info("Issue Event: ISSUE_COMMENT_DELETED_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
-			log.info("Issue Event: ISSUE_COMMENT_EDITED_ID");
+			if(issueEvent.getComment() != null) {
+				sb.append(String.format("%s修改了问题%s(%s)的注释: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getComment().getBody()));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENTED_ID)) {
-			log.info("Issue Event: ISSUE_COMMENTED_ID");
+			if(issueEvent.getComment() != null) {
+				sb.append(String.format("%s给问题%s(%s)添加了注释: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getComment().getBody()));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_CREATED_ID)) {
-			sb.append(String.format("%s创建了问题%s", m_userManager.getRemoteUser().getUsername(), issue.getKey()));
+			sb.append(String.format("%s创建了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
 			if(issue.getAssignee() == null) {
 				sb.append(", 尚未指定负责人");
 			} else {
@@ -90,33 +156,44 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 				// initial assigned will get notification
 				receivers.add(issue.getAssignee().getName());
 			}
-			if(!isEmpty(issue.getSummary())) {
-				sb.append(", 问题简介: ").append(issue.getSummary());
-			}
-			log.info("Issue Event: ISSUE_CREATED_ID, msg: {}", sb.toString());
 		} else if (eventTypeId.equals(EventType.ISSUE_DELETED_ID)) {
-			log.info("Issue Event: ISSUE_DELETED_ID");
+			sb.append(String.format("%s删除了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
 		} else if (eventTypeId.equals(EventType.ISSUE_GENERICEVENT_ID)) {
-			log.info("Issue Event: ISSUE_GENERICEVENT_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_MOVED_ID)) {
-			log.info("Issue Event: ISSUE_MOVED_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_REOPENED_ID)) {
-			log.info("Issue Event: ISSUE_REOPENED_ID");
+			sb.append(String.format("%s重新打开问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			if(issueEvent.getComment() != null) {
+				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_RESOLVED_ID)) {
-			log.info("Issue Event: ISSUE_RESOLVED_ID");
+			sb.append(String.format("%s解决了问题%s(%s), 解决方案: %s", user, issue.getKey(), issue.getSummary(), getResolutionString(issue.getResolutionId())));
+			if(issueEvent.getComment() != null) {
+				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_UPDATED_ID)) {
-			log.info("Issue Event: ISSUE_UPDATED_ID");
+			sb.append(String.format("%s更新了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			if(issueEvent.getComment() != null) {
+				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOG_DELETED_ID)) {
-			log.info("Issue Event: ISSUE_WORKLOG_DELETED_ID");
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOG_UPDATED_ID)) {
-			log.info("Issue Event: ISSUE_WORKLOG_UPDATED_ID");
+			if(issueEvent.getWorklog() != null) {
+				sb.append(String.format("%s更新了问题%s(%s)的工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getWorklog().getComment(),
+						getTimeString(issueEvent)));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOGGED_ID)) {
-			log.info("Issue Event: ISSUE_WORKLOGGED_ID");
+			if(issueEvent.getWorklog() != null) {
+				sb.append(String.format("%s给问题%s(%s)添加了工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getWorklog().getComment(),
+						getTimeString(issueEvent)));
+			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKSTARTED_ID)) {
-			log.info("Issue Event: ISSUE_WORKSTARTED_ID");
+			sb.append(String.format("%s开始处理问题%s(%s)", user, issue.getKey(), issue.getSummary()));
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKSTOPPED_ID)) {
-			log.info("Issue Event: ISSUE_WORKSTOPPED_ID");
+			sb.append(String.format("%s停止处理问题%s(%s)", user, issue.getKey(), issue.getSummary()));
 		}
+		
+		// log
+		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), sb.toString());
 		
 		// set reporter as receiver
 		if(issue.getReporter() != null)
