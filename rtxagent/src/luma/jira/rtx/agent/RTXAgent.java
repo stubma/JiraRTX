@@ -76,6 +76,7 @@ public class RTXAgent {
 	                        String msg = json.optString("msg");
 	                        JSONArray receiversArray = json.optJSONArray("receivers");
 	                        String receivers = receiversArray.join(",");
+	                        receivers = receivers.substring(1, receivers.length() - 1);
                         	int ret = rtx.sendNotify(receivers, "Jira通知", msg, "0", "0");
                         	if(ret != 0) {
                         		System.out.println(String.format("发消息给%s失败: %s", receivers, msg));
