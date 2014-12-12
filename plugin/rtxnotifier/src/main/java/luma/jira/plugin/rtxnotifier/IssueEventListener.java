@@ -216,8 +216,12 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), msg);
 		
 		// set reporter as receiver
-		if(issue.getReporter() != null)
+		if(issue.getReporter() != null) {
 			receivers.add(issue.getReporter().getName());
+		}
+		if(issue.getAssignee() != null) {
+			receivers.add(issue.getAssignee().getName());
+		}
 		
 		// build a json object
 		JSONObject json = new JSONObject();
