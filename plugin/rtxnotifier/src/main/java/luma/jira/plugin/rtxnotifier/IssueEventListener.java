@@ -18,6 +18,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
@@ -129,25 +130,31 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		StringBuilder sb = new StringBuilder();
 		List<String> receivers = new ArrayList<String>();
 		String user = m_userManager.getRemoteUser().getUsername();
+		String link = ComponentAccessor.getApplicationProperties().getString("jira.baseurl") + "/browse/" + issue.getKey();
 
 		// build message
 		if (eventTypeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
-			sb.append(String.format("%s已将问题%s(%s)分配给%s", user, issue.getKey(), issue.getSummary(), issue.getAssignee().getName()));
+			sb.append(String.format("%s已将问题%s([%s|%s])分配给%s", user, issue.getKey(), issue.getSummary(), 
+					link, issue.getAssignee().getName()));
 			if (issueEvent.getComment() != null)
 				sb.append(", 注释: ").append(issueEvent.getComment().getBody());
 		} else if (eventTypeId.equals(EventType.ISSUE_CLOSED_ID)) {
-			sb.append(String.format("%s关闭了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s关闭了问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENT_DELETED_ID)) {
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENT_EDITED_ID)) {
 			if(issueEvent.getComment() != null) {
-				sb.append(String.format("%s修改了问题%s(%s)的注释: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getComment().getBody()));
+				sb.append(String.format("%s修改了问题%s([%s|%s])的注释: %s", user, issue.getKey(), issue.getSummary(), 
+						link, issueEvent.getComment().getBody()));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_COMMENTED_ID)) {
 			if(issueEvent.getComment() != null) {
-				sb.append(String.format("%s给问题%s(%s)添加了注释: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getComment().getBody()));
+				sb.append(String.format("%s给问题%s([%s|%s])添加了注释: %s", user, issue.getKey(), issue.getSummary(), 
+						link, issueEvent.getComment().getBody()));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_CREATED_ID)) {
-			sb.append(String.format("%s创建了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s创建了问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 			if(issue.getAssignee() == null) {
 				sb.append(", 尚未指定负责人");
 			} else {
@@ -157,43 +164,56 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 				receivers.add(issue.getAssignee().getName());
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_DELETED_ID)) {
-			sb.append(String.format("%s删除了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s删除了问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 		} else if (eventTypeId.equals(EventType.ISSUE_GENERICEVENT_ID)) {
 		} else if (eventTypeId.equals(EventType.ISSUE_MOVED_ID)) {
 		} else if (eventTypeId.equals(EventType.ISSUE_REOPENED_ID)) {
-			sb.append(String.format("%s重新打开问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s重新打开问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 			if(issueEvent.getComment() != null) {
 				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_RESOLVED_ID)) {
-			sb.append(String.format("%s解决了问题%s(%s), 解决方案: %s", user, issue.getKey(), issue.getSummary(), getResolutionString(issue.getResolutionId())));
+			sb.append(String.format("%s解决了问题%s([%s|%s]), 解决方案: %s", user, issue.getKey(), issue.getSummary(),
+					link, getResolutionString(issue.getResolutionId())));
 			if(issueEvent.getComment() != null) {
 				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_UPDATED_ID)) {
-			sb.append(String.format("%s更新了问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s更新了问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 			if(issueEvent.getComment() != null) {
 				sb.append(String.format(", 注释: %s", issueEvent.getComment().getBody()));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOG_DELETED_ID)) {
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOG_UPDATED_ID)) {
 			if(issueEvent.getWorklog() != null) {
-				sb.append(String.format("%s更新了问题%s(%s)的工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getWorklog().getComment(),
+				sb.append(String.format("%s更新了问题%s([%s|%s])的工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(),
+						link, issueEvent.getWorklog().getComment(),
 						getTimeString(issueEvent)));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKLOGGED_ID)) {
 			if(issueEvent.getWorklog() != null) {
-				sb.append(String.format("%s给问题%s(%s)添加了工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(), issueEvent.getWorklog().getComment(),
+				sb.append(String.format("%s给问题%s([%s|%s])添加了工作日志: %s, 工作时间: %s", user, issue.getKey(), issue.getSummary(), 
+						link, issueEvent.getWorklog().getComment(),
 						getTimeString(issueEvent)));
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKSTARTED_ID)) {
-			sb.append(String.format("%s开始处理问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s开始处理问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 		} else if (eventTypeId.equals(EventType.ISSUE_WORKSTOPPED_ID)) {
-			sb.append(String.format("%s停止处理问题%s(%s)", user, issue.getKey(), issue.getSummary()));
+			sb.append(String.format("%s停止处理问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
+					link));
 		}
 		
+		// if no message, don't send
+		String msg = sb.toString();
+		if("".equals(msg))
+			return;
+		
 		// log
-		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), sb.toString());
+		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), msg);
 		
 		// set reporter as receiver
 		if(issue.getReporter() != null)
@@ -202,7 +222,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		// build a json object
 		JSONObject json = new JSONObject();
 		try {
-			json.put("msg", sb.toString());
+			json.put("msg", msg);
 			json.put("receivers", receivers);
 		} catch (JSONException e) {
 		}
