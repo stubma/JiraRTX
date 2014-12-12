@@ -75,11 +75,19 @@ public class RTXAgent {
 	                        JSONObject json = JSONObject.fromObject(receivedData);
 	                        String msg = json.optString("msg");
 	                        JSONArray receiversArray = json.optJSONArray("receivers");
-	                        String receivers = receiversArray.join(",");
-	                        receivers = receivers.substring(1, receivers.length() - 1);
+	                        StringBuilder sb = new StringBuilder();
+	                        int size = receiversArray.size();
+	                        for(int j = 0; j < size; j++) {
+	                        	if(sb.length() > 0)
+	                        		sb.append(',');
+	                        	sb.append(receiversArray.optString(j));
+	                        }
+	                        String receivers = sb.toString();
                         	int ret = rtx.sendNotify(receivers, "Jira通知", msg, "0", "0");
                         	if(ret != 0) {
                         		System.out.println(String.format("发消息给%s失败: %s", receivers, msg));
+                        	} else {
+                        		System.out.println(String.format("消息成功发送给%s", receivers));
                         	}
                         } catch (Exception e) {
                         	System.out.println(String.format("parse json error for %s", receivedData));
