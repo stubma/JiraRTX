@@ -6,21 +6,35 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import rtx.RTXSvrApi;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 public class RTXAgent {
 	public static void main(String[] args) {
+		// init rtx server api
+		RTXSvrApi rtx = new RTXSvrApi();  
+		if(!rtx.Init()) {
+			System.out.println("failed to init RTX server api");
+			return;
+		}
+		
+		// start waiting for client
 		ServerSocket servSocket = null;
 		try {
 			servSocket = new ServerSocket(20141);
 			while (true) {
 				Socket clientSocket = servSocket.accept();
-				startClientThread(clientSocket);
+				startClientThread(clientSocket, rtx);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			rtx.UnInit();
 		}
 	}
 	
-	private static void startClientThread(final Socket clientSocket) {
+	private static void startClientThread(final Socket clientSocket, final RTXSvrApi rtx) {
 		Thread t = new Thread() {
 			@Override
 			public void run() {
@@ -55,6 +69,23 @@ public class RTXAgent {
 							buf[j - 4 - length] = buf[j];
 						}
 						read -= 4 + length;
+						
+						// create json
+						try {
+	                        JSONObject json = JSONObject.fromObject(receivedData);
+	                        String msg = json.optString("msg");
+	                        JSONArray receivers = json.optJSONArray("receivers");
+	                        int size = receivers.size();
+	                        for(int j = 0; j < size; j++) {
+	                        	String receiver = receivers.optString(j);
+	                        	int ret = rtx.sendNotify(receiver, "Jira通知", msg, "0", "0");
+	                        	if(ret != 0) {
+	                        		System.out.println(String.format("发消息给%s失败: %s", receiver, msg));
+	                        	}
+	                        }
+                        } catch (Exception e) {
+                        	System.out.println(String.format("parse json error for %s", receivedData));
+                        }
 					}
 					clientSocket.close();
 				} catch (IOException e) {
