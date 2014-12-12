@@ -13,9 +13,11 @@
 如何使用
 ===
 
+目前版本还没有做用户名映射的功能, jira中的用户名必须和RTX中的用户名相同.
+
 1. 安装RTX Server到机器A
 2. 安装RTX Server SDK到机器A, 参照其文档做设置
-3. 安装Jira到机器B
+3. 安装Jira到机器B 
 4. 安装Atlassian Plugin SDK, 编译rtxnotifier, 拷贝到jira的插件目录
 5. 启动jira后, 导航条会看到RTX菜单, 选择Config RTX Agent, 配置RTX Agent的地址和端口, 然后保存. 端口缺省是20141, 写死在RTXAgent.java里的
 6. 在机器A上安装eclipse, 打开rtxagent项目, 运行RTXAgent.java. 我还没有打包成jar, 所以就先通过eclipse运行吧.
