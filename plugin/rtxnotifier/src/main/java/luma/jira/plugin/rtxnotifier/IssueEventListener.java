@@ -129,13 +129,13 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		Issue issue = issueEvent.getIssue();
 		StringBuilder sb = new StringBuilder();
 		List<String> receivers = new ArrayList<String>();
-		String user = m_userManager.getRemoteUser().getUsername();
+		String user = m_userManager.getRemoteUser().getFullName();
 		String link = ComponentAccessor.getApplicationProperties().getString("jira.baseurl") + "/browse/" + issue.getKey();
 
 		// build message
 		if (eventTypeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
 			sb.append(String.format("%s已将问题%s([%s|%s])分配给%s", user, issue.getKey(), issue.getSummary(), 
-					link, issue.getAssignee().getName()));
+					link, issue.getAssignee().getDisplayName()));
 			if (issueEvent.getComment() != null)
 				sb.append(", 注释: ").append(issueEvent.getComment().getBody());
 		} else if (eventTypeId.equals(EventType.ISSUE_CLOSED_ID)) {
@@ -158,10 +158,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 			if(issue.getAssignee() == null) {
 				sb.append(", 尚未指定负责人");
 			} else {
-				sb.append(", 初始分配给").append(issue.getAssignee().getName());
-				
-				// initial assigned will get notification
-				receivers.add(issue.getAssignee().getName());
+				sb.append(", 初始分配给").append(issue.getAssignee().getDisplayName());
 			}
 		} else if (eventTypeId.equals(EventType.ISSUE_DELETED_ID)) {
 			sb.append(String.format("%s删除了问题%s([%s|%s])", user, issue.getKey(), issue.getSummary(),
