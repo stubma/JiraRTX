@@ -131,7 +131,7 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		List<String> receivers = new ArrayList<String>();
 		String user = m_userManager.getRemoteUser().getFullName();
 		String link = ComponentAccessor.getApplicationProperties().getString("jira.baseurl") + "/browse/" + issue.getKey();
-
+		
 		// build message
 		if (eventTypeId.equals(EventType.ISSUE_ASSIGNED_ID)) {
 			sb.append(String.format("%s已将问题%s([%s|%s])分配给%s", user, issue.getKey(), issue.getSummary(), 
@@ -204,13 +204,13 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 					link));
 		}
 		
-		// if no message, don't send
+		// log
 		String msg = sb.toString();
+		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), msg);
+		
+		// if no message, don't send
 		if("".equals(msg))
 			return;
-		
-		// log
-		log.info("Issue Event: {}, msg: {}", s_eventTypeStrings.get(eventTypeId), msg);
 		
 		// set reporter as receiver
 		if(issue.getReporter() != null) {
