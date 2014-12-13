@@ -5,19 +5,19 @@
 	</head>
 	<body>
 		#if($saved)
-		<h3>Saved!</h3>
+		<h3>$i18n.getText("rtx.saved.hint")</h3>
 		#end
 		<form id="admin" class="aui" action="" method="POST">
 			<div class="field-group">
-				<label for="addr">Agent Address:</label>
+				<label for="addr">$i18n.getText("rtx.agent.address"):</label>
 				<input type="text" id="addr" name="addr" value="$!addr" />
 			</div>
 			<div class="field-group">
-				<label for="port">Agent Port:</label>
+				<label for="port">$i18n.getText("rtx.agent.port"):</label>
 				<input type="text" id="port" name="port" value="$!port" />
 			</div>
 			<div class="field-group">
-				<input type="submit" value="Save" />
+				<input type="submit" value="$i18n.getText("rtx.save")" />
 			</div>
 		</form>
 	</body>
