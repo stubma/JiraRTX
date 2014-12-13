@@ -2,6 +2,7 @@
 	<head>
 		<title>RTX Notifier Admin</title>
 		<meta name="decorator" content="atl.admin" />
+		$webResourceManager.requireResource("luma.jira.plugin.rtxnotifier:rtxnotifier-resources")
 	</head>
 	<body>
 		#if($saved)
