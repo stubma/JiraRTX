@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.type.EventType;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.issue.worklog.Worklog;
 import com.atlassian.jira.util.json.JSONException;
 import com.atlassian.jira.util.json.JSONObject;
@@ -212,13 +214,22 @@ public class IssueEventListener implements InitializingBean, DisposableBean {
 		if("".equals(msg))
 			return;
 		
-		// set reporter as receiver
+		// add receivers, include reporter, assignee and watchers
 		if(issue.getReporter() != null) {
 			receivers.add(issue.getReporter().getName());
 		}
 		if(issue.getAssignee() != null) {
-			receivers.add(issue.getAssignee().getName());
+			if(!receivers.contains(issue.getAssignee().getName()))
+				receivers.add(issue.getAssignee().getName());
 		}
+		WatcherManager wm = ComponentAccessor.getWatcherManager();
+		List<String> watchers = wm.getCurrentWatcherUsernames(issue);
+		for(String w : watchers) {
+			if(!receivers.contains(w)) {
+				receivers.add(w);
+			}
+		}
+		log.info("receivers: {}", Arrays.toString(receivers.toArray()));
 		
 		// build a json object
 		JSONObject json = new JSONObject();
